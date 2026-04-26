@@ -1,0 +1,83 @@
+[
+  {
+    "id": "run-1777232544060",
+    "timestamp": "2026-04-26T19:42:24.060Z",
+    "generatedAt": "2026-04-26T19:42:24.052Z",
+    "modeUsed": "live",
+    "summary": {
+      "supplierCount": 1,
+      "averageRiskScore": 36,
+      "criticalSuppliers": 0,
+      "highRiskSuppliers": 0,
+      "citationsCollected": 2
+    },
+    "suppliers": [
+      {
+        "supplierName": "New Supplier",
+        "country": "Unknown",
+        "industry": "General",
+        "riskScore": 36,
+        "riskLevel": "medium",
+        "recommendation": "Increase monitoring cadence and build contingency inventory around the most exposed SKUs.",
+        "on_time_delivery_pct": 90,
+        "inventory_buffer_days": 14,
+        "supplier_health": "stable",
+        "annual_spend_usd": 0
+      }
+    ]
+  },
+  {
+    "id": "run-1777231731003",
+    "timestamp": "2026-04-26T19:28:51.003Z",
+    "generatedAt": "2026-04-26T19:28:50.921Z",
+    "modeUsed": "live",
+    "summary": {
+      "supplierCount": 1,
+      "averageRiskScore": 36,
+      "criticalSuppliers": 0,
+      "highRiskSuppliers": 0,
+      "citationsCollected": 2
+    },
+    "suppliers": [
+      {
+        "supplierName": "New Supplier",
+        "country": "Unknown",
+        "industry": "General",
+        "riskScore": 36,
+        "riskLevel": "medium",
+        "recommendation": "Increase monitoring cadence and build contingency inventory around the most exposed SKUs.",
+        "on_time_delivery_pct": 90,
+        "inventory_buffer_days": 14,
+        "supplier_health": "stable",
+        "annual_spend_usd": 0
+      }
+    ]
+  },
+  {
+    "id": "run-1777231660683",
+    "timestamp": "2026-04-26T19:27:40.683Z",
+    "generatedAt": "2026-04-26T19:27:40.674Z",
+    "modeUsed": "live",
+    "summary": {
+      "supplierCount": 1,
+      "averageRiskScore": 36,
+      "criticalSuppliers": 0,
+      "highRiskSuppliers": 0,
+      "citationsCollected": 2
+    },
+    "suppliers": [
+      {
+        "supplierName": "New Supplier",
+        "country": "Unknown",
+        "industry": "General",
+        "riskScore": 36,
+        "riskLevel": "medium",
+        "recommendation": "Increase monitoring cadence and build contingency inventory around the most exposed SKUs.",
+        "on_time_delivery_pct": 90,
+        "inventory_buffer_days": 14,
+        "supplier_health": "stable",
+        "annual_spend_usd": 0
+      }
+    ]
+  }
+]
