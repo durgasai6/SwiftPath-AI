@@ -1,0 +1,10 @@
+supplier_name,country,industry,stock_ticker,annual_spend_usd,criticality,on_time_delivery_pct,inventory_buffer_days,single_source,supplier_health,incident_note
+Shenzhen Micro Devices,China,Electronics,,4200000,high,91,14,yes,medium,Export controls and port congestion are stretching component lead times.
+Eastern Looms Cooperative,India,Apparel,,950000,medium,97,28,no,strong,
+Baltic Precision Cast,Poland,Industrials,,1600000,high,88,10,yes,medium,Energy price pressure and trucking disruption are affecting throughput.
+Volga Machine Works,Russia,Automotive,,1200000,high,84,8,yes,weak,Sanctions exposure and payment friction are making sourcing unstable.
+Monterrey Plastics,Mexico,Packaging,,780000,medium,95,18,no,strong,Border inspection delays increased over the last quarter.
+Taipei Chip Assembly,Taiwan,Electronics,,5100000,critical,93,12,yes,strong,Earthquake watch and regional military tension require tighter monitoring.
+Anatolia Textiles,Turkey,Apparel,,680000,medium,89,16,no,medium,FX volatility is squeezing supplier margins and making pricing less predictable.
+Sao Paulo BioInputs,Brazil,Chemicals,,2200000,high,86,9,no,medium,Flood risk around a key logistics corridor is threatening dispatch reliability.
+Ho Chi Minh Components,Vietnam,Electronics,,3100000,high,92,15,no,strong,Peak season capacity is tightening across the contract manufacturing network.

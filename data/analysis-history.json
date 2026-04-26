@@ -1,0 +1,43 @@
+[
+  {
+    "id": "run-1777218124894",
+    "generatedAt": "2026-04-26T15:42:04.879Z",
+    "modeUsed": "live",
+    "supplierCount": 5,
+    "averageRiskScore": 48,
+    "criticalSuppliers": 0,
+    "highestRiskSupplier": "Formosa Precision Systems",
+    "highestRiskScore": 57
+  },
+  {
+    "id": "run-1777212277286",
+    "generatedAt": "2026-04-26T14:04:37.274Z",
+    "modeUsed": "local",
+    "supplierCount": 5,
+    "averageRiskScore": 58,
+    "criticalSuppliers": 0,
+    "highestRiskSupplier": "Zhonghao Electronics",
+    "highestRiskScore": 63
+  },
+  {
+    "id": "run-1777211960072",
+    "generatedAt": "2026-04-26T13:59:20.068Z",
+    "modeUsed": "local",
+    "supplierCount": 5,
+    "averageRiskScore": 58,
+    "criticalSuppliers": 0,
+    "highestRiskSupplier": "Zhonghao Electronics",
+    "highestRiskScore": 63
+  },
+  {
+    "id": "run-1777200165686",
+    "generatedAt": "2026-04-26T10:42:45.659Z",
+    "modeUsed": "smart",
+    "supplierCount": 9,
+    "averageScore": 48,
+    "criticalSuppliers": 1,
+    "highestRiskSupplier": "Volga Machine Works",
+    "highestRiskScore": 83,
+    "totalAnnualSpendUsd": 19810000
+  }
+]
