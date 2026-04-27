@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Upload, UserPlus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Download, Upload, UserPlus } from "lucide-react";
 import { RiskHeatmap } from "@/components/risk-heatmap";
 import { SupplierTable } from "@/components/supplier-table";
 import { Badge } from "@/components/ui/badge";
@@ -15,63 +15,16 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { toRiskLevel } from "@/lib/utils";
+import { suppliers as sampleSuppliers } from "@/lib/mock-data";
 
 export default function SuppliersPage() {
   const [search, setSearch] = useState("");
   const [country, setCountry] = useState("all");
   const [riskLevel, setRiskLevel] = useState("all");
   const [category, setCategory] = useState("all");
-  const [allSuppliers, setAllSuppliers] = useState<any[]>([]);
-  const [loadingSuppliers, setLoadingSuppliers] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/history")
-      .then((r) => r.json())
-      .then((data) => {
-        const history = Array.isArray(data) ? data : (data.history ?? []);
-        const latest = history[0];
-        if (!latest) return;
-        const mapped = (latest.suppliers ?? []).map((s: any, i: number) => ({
-          id: `s-${i}`,
-          name: s.supplierName,
-          country: s.country ?? "Unknown",
-          countryCode: "",
-          flag: "",
-          city: "",
-          industry: s.industry ?? "",
-          category: s.category ?? "",
-          annualSpendUsd: s.annual_spend_usd ?? 0,
-          riskScore: s.riskScore,
-          riskLevel: toRiskLevel(s.riskScore),
-          riskTrend: "stable" as const,
-          trendDelta: 0,
-          newsSignals: 0,
-          financialHealth: "neutral" as const,
-          lastScannedAt: latest.timestamp,
-          criticality:
-            s.riskScore >= 75
-              ? "critical"
-              : s.riskScore >= 60
-              ? "high"
-              : s.riskScore >= 35
-              ? "medium"
-              : "low",
-          singleSource: false,
-          onTimeDeliveryPct: s.on_time_delivery_pct ?? 0,
-          inventoryBufferDays: s.inventory_buffer_days ?? 0,
-          supplierHealth: s.supplier_health ?? "stable",
-          activeAlerts: 0,
-          riskSummary: s.recommendation ?? "",
-          locationLabel: s.country ?? "",
-          coordinates: { lat: 0, lon: 0, x: 50, y: 50 },
-          initials: s.supplierName?.slice(0, 2).toUpperCase() ?? "SP"
-        }));
-        setAllSuppliers(mapped);
-      })
-      .catch(() => {})
-      .finally(() => setLoadingSuppliers(false));
-  }, []);
+  const allSuppliers = useMemo(() => sampleSuppliers, []);
 
   const countries = useMemo(
     () => Array.from(new Set(allSuppliers.map((s) => s.country))).sort(),
@@ -96,6 +49,28 @@ export default function SuppliersPage() {
     });
   }, [allSuppliers, search, country, riskLevel, category]);
 
+  const handleExportCSV = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/export?format=csv");
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `suppliers_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
+    } catch (error) {
+      console.error("Failed to export CSV:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <section className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
@@ -110,6 +85,10 @@ export default function SuppliersPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
+          <Button variant="secondary" onClick={handleExportCSV} disabled={loading}>
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
           <Button variant="secondary">
             <Upload className="h-4 w-4" />
             CSV Upload
