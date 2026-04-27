@@ -5,6 +5,5 @@ export const runtime = "nodejs";
 
 export async function GET() {
   const runs = await listHistory();
-  return NextResponse.json({ runs });
+  return NextResponse.json(runs);
 }
-

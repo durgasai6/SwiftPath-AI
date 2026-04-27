@@ -157,7 +157,7 @@ export default function DashboardPage() {
             </div>
             <Badge variant="secondary">{dashboardRiskHistory.length}-scan view</Badge>
           </CardHeader>
-          <CardContent className="h-[340px]">
+          <CardContent className="h-85">
             {mounted && dashboardRiskHistory.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={dashboardRiskHistory}>
@@ -193,7 +193,7 @@ export default function DashboardPage() {
             </div>
             <Globe2 className="h-5 w-5 text-primary" />
           </CardHeader>
-          <CardContent className="h-[340px]">
+          <CardContent className="h-85">
             {mounted ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>

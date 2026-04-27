@@ -8,9 +8,11 @@ import {
   Bot,
   ChevronLeft,
   ChevronRight,
+  Cloud,
   FileText,
   LayoutDashboard,
   LogOut,
+  Newspaper,
   Settings,
   Truck,
   User
@@ -26,7 +28,9 @@ const navigation = [
   { label: "Suppliers", href: "/dashboard/suppliers", icon: Truck },
   { label: "Alerts", href: "/dashboard/alerts", icon: Bell },
   { label: "Agent Activity", href: "/dashboard/agents", icon: Bot },
-  { label: "Reports", href: "/dashboard/reports", icon: FileText }
+  { label: "Reports", href: "/dashboard/reports", icon: FileText },
+  { label: "News Feed", href: "/dashboard/news", icon: Newspaper },
+  { label: "Weather Risk", href: "/dashboard/weather", icon: Cloud },
 ];
 
 interface SidebarProps {
@@ -65,7 +69,7 @@ export function Sidebar({ collapsed, onToggle, user }: SidebarProps) {
         ) : null}
       </div>
 
-      <div className="mt-6 space-y-1">
+      <div className="mt-6 space-y-1 overflow-y-auto flex-1">
         {navigation.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
@@ -89,7 +93,7 @@ export function Sidebar({ collapsed, onToggle, user }: SidebarProps) {
         })}
       </div>
 
-      <div className="mt-auto space-y-3">
+      <div className="mt-4 space-y-3">
         <Button
           variant="secondary"
           className={cn("w-full justify-between rounded-2xl", collapsed && "justify-center px-0")}

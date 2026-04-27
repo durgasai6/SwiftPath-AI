@@ -234,7 +234,7 @@ export function RiskHeatmapVisualization({ suppliers }: RiskHeatmapProps) {
               .map((supplier) => (
                 <div key={supplier.id} className="flex items-center gap-3 rounded-lg border border-border p-3">
                   <div
-                    className="h-3 w-3 rounded-full flex-shrink-0"
+                    className="h-3 w-3 rounded-full shrink-0"
                     style={{ backgroundColor: getRiskColor(supplier.riskScore) }}
                   />
                   <div className="flex-1 min-w-0">
