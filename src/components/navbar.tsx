@@ -33,6 +33,10 @@ const titleMap: Record<string, { title: string; subtitle: string }> = {
     title: "Agent Activity",
     subtitle: "Inspect how each autonomous agent is scanning, scoring, and escalating."
   },
+  "/dashboard/ops": {
+    title: "Agentic Ops",
+    subtitle: "Review orchestration readiness, fallback posture, and deployment maturity."
+  },
   "/dashboard/reports": {
     title: "Reports",
     subtitle: "Generate leadership-ready outputs and weekly portfolio summaries."
@@ -86,18 +90,18 @@ export function Navbar({ user }: { user: SessionUser }) {
             <p className="mt-1 text-sm text-muted">{content.subtitle}</p>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
             <Button
               variant="secondary"
-              className="group min-w-[220px] justify-between rounded-2xl border-white/10 bg-white/5 px-4 text-left text-muted hover:text-foreground sm:min-w-[280px]"
+              className="group min-w-0 flex-1 justify-between rounded-2xl border-white/10 bg-white/5 px-4 text-left text-muted hover:text-foreground sm:min-w-[280px] lg:max-w-[420px]"
               onClick={() => setOpenPalette(true)}
             >
-              <span className="flex items-center gap-2">
+              <span className="flex min-w-0 items-center gap-2">
                 <Search className="h-4 w-4" />
-                Search suppliers, alerts, or actions
+                <span className="truncate">Search suppliers, alerts, or actions</span>
               </span>
-              <span className="rounded-lg border border-white/10 px-2 py-1 font-mono text-[11px] uppercase tracking-[0.2em]">
-                ⌘K
+              <span className="hidden rounded-lg border border-white/10 px-2 py-1 font-mono text-[11px] uppercase tracking-[0.2em] sm:inline-flex">
+                Ctrl K
               </span>
             </Button>
 

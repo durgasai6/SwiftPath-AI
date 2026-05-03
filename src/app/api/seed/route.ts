@@ -1,24 +1,41 @@
 import { NextResponse } from "next/server";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { toStoredSupplierRecord } from "@/lib/portfolio";
 import { appendHistory } from "@/lib/server/history-store";
 import { sampleSuppliers } from "@/lib/sample-suppliers";
 
 export const runtime = "nodejs";
 
+const SUPPLIERS_FILE = path.join(process.cwd(), "data", "suppliers.json");
+
 export async function POST(request: Request) {
   try {
+    await mkdir(path.dirname(SUPPLIERS_FILE), { recursive: true });
+    await writeFile(
+      SUPPLIERS_FILE,
+      JSON.stringify(sampleSuppliers.map((supplier) => toStoredSupplierRecord(supplier)), null, 2),
+      "utf8"
+    );
+
     // Create a comprehensive analysis entry with all suppliers
     const analysisEntry = {
+      generatedAt: new Date().toISOString(),
+      modeUsed: "local" as const,
       suppliers: sampleSuppliers.map((supplier) => ({
-        supplierId: supplier.id,
         supplierName: supplier.name,
         country: supplier.country,
+        category: supplier.category,
+        industry: supplier.industry,
         riskScore: supplier.riskScore,
         riskLevel: supplier.riskLevel,
         recommendation: supplier.riskSummary,
-        category: supplier.category,
-        industry: supplier.industry,
-        annualSpendUsd: supplier.annualSpendUsd,
-        criticality: supplier.criticality
+        annual_spend_usd: supplier.annualSpendUsd,
+        on_time_delivery_pct: supplier.onTimeDeliveryPct,
+        inventory_buffer_days: supplier.inventoryBufferDays,
+        supplier_health: supplier.supplierHealth,
+        criticality: supplier.criticality,
+        single_source: supplier.singleSource
       })),
       summary: {
         supplierCount: sampleSuppliers.length,
@@ -42,7 +59,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Database seeded successfully",
+      message: "Demo portfolio seeded successfully",
       entry
     });
   } catch (error) {

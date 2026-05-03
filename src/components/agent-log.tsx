@@ -29,11 +29,15 @@ export function AgentLog({ entries, live = true, maxHeight = "420px" }: AgentLog
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!live) return;
+    setVisibleCount(live ? Math.min(6, entries.length) : entries.length);
+  }, [entries.length, live]);
+
+  useEffect(() => {
+    if (!live || entries.length <= 6) return;
 
     const interval = window.setInterval(() => {
       setVisibleCount((current) => {
-        if (current >= entries.length) return 6;
+        if (current >= entries.length) return current;
         return current + 1;
       });
     }, 2400);
@@ -69,7 +73,7 @@ export function AgentLog({ entries, live = true, maxHeight = "420px" }: AgentLog
                 <p className="mt-1 text-sm leading-6 text-foreground/90">{entry.action}</p>
                 <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted">
                   <span>{entry.supplierName}</span>
-                  <span>•</span>
+                  <span>|</span>
                   <span>{entry.durationMs}ms</span>
                 </div>
               </div>
@@ -80,4 +84,3 @@ export function AgentLog({ entries, live = true, maxHeight = "420px" }: AgentLog
     </ScrollArea>
   );
 }
-

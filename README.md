@@ -1,331 +1,177 @@
-# SwiftPath-AI: AI-Powered Supplier Risk Intelligence Platform
+# SwiftPath AI
 
-SwiftPath-AI is a cutting-edge, AI-driven platform designed to revolutionize supplier risk management for supply chain teams. Built with Next.js 16, TypeScript, and modern web technologies, it leverages multi-agent AI systems to provide real-time, proactive risk detection and mitigation strategies, ensuring operational continuity and cost savings.
+SwiftPath AI is an agentic supplier-risk intelligence MVP built for procurement and supply-chain teams. It shows how an industrial AI system can ingest a supplier portfolio, orchestrate multiple risk signals, escalate the highest-risk suppliers into deeper analysis, persist its audit trail, and generate leadership-facing outputs.
 
-It now includes:
+This version is tuned to present well in an `Agentic Ops` / `Industrial AI Deployment` setting. The app now includes a clearer demo flow, seeded portfolio workflow, an operational readiness view, fallback-safe analysis, and stronger product framing across the dashboard.
 
-- Marketing landing page
-- Login and signup flows
-- Full dashboard shell with collapsible sidebar and command palette
-- Dashboard, suppliers, alerts, agents, and reports pages
-- Real `/api/analyze` backend route using:
-  - GDELT for news discovery
-  - Open-Meteo for weather risk
-  - Groq for live web-backed geopolitical, financial, and compliance reasoning
-- Persistent analysis history via `data/analysis-history.json`
+## What The MVP Demonstrates
 
-## Project Overview
+- Portfolio ingest: load a demo portfolio or import suppliers from CSV.
+- Agent orchestration: combine news, weather, financial, compliance, geopolitical, and operational signals.
+- Risk prioritization: score suppliers into low, medium, high, and critical bands.
+- Escalation path: use deterministic local scoring by default and switch to live reasoning when a Groq key is configured.
+- Operational safeguards: persistent history, health endpoints, exports, and a readiness summary.
+- Executive reporting: review scan history, alerts, recommendations, and downloadable reports.
 
-SwiftPath-AI empowers procurement and supply chain professionals to "Know Before It Breaks" by detecting supplier risks early across multiple dimensions: geopolitical events, financial instability, compliance issues, weather disruptions, and logistical challenges. Unlike traditional reactive systems that rely on manual monitoring or delayed reports, SwiftPath-AI uses autonomous AI agents to continuously scan global signals and provide actionable insights.
+## Why This Fits Agentic Ops
 
-### Key Capabilities
-- **Multi-Agent AI Monitoring**: Specialized agents for news, weather, financial, and compliance analysis work in parallel
-- **Real-Time Risk Scoring**: Dynamic risk assessment with explainable scoring bands (Low, Medium, High, Critical)
-- **Autonomous Recommendations**: AI-generated mitigation strategies, from alternate sourcing to compliance reviews
-- **Interactive Dashboard**: Comprehensive portfolio view with heatmaps, alerts, and trend analysis
-- **Persistent Intelligence**: Historical analysis tracking and automated report generation
-- **Seamless Integration**: CSV upload, API endpoints, and export capabilities
+The product is not just "AI on a page." It shows the broader operating loop:
 
-## Novel and Innovative Features
+1. Input suppliers into a monitored portfolio.
+2. Run baseline multi-signal analysis across the portfolio.
+3. Escalate top-risk suppliers into deeper reasoning.
+4. Persist the run for auditability and repeatability.
+5. Surface actions, alerts, and reports for operators.
 
-Compared to existing supplier risk management systems (which often rely on manual data entry, quarterly reports, or siloed tools), SwiftPath-AI introduces groundbreaking capabilities:
+That gives you a clean story around orchestration, fallback behavior, observability, and deployment readiness.
 
-### 1. **Autonomous Multi-Agent Architecture**
-   - **Novelty**: First-to-market multi-agent system where specialized AI agents (News, Weather, Financial, Compliance) operate independently and collaboratively
-   - **Advantage**: Eliminates human bottlenecks; agents scan 24/7 without fatigue or oversight gaps
-   - **Impact**: Reduces risk detection time from weeks to minutes
+## Main Screens
 
-### 2. **Real-Time Web-Backed Reasoning**
-   - **Novelty**: Integrates live web data with Groq AI for contextual geopolitical and financial analysis
-   - **Advantage**: Goes beyond static databases; understands current events and their supply chain implications
-   - **Impact**: Provides nuanced risk assessments that traditional rule-based systems miss
+- `/` marketing landing page
+- `/login` and `/signup` authentication flow
+- `/dashboard` command center with live scan, trendline, risk distribution, and latest actions
+- `/dashboard/suppliers` portfolio workspace with demo seed, CSV import, export, filters, and heatmap
+- `/dashboard/alerts` alert queue generated from scan history
+- `/dashboard/agents` agent activity and pipeline view
+- `/dashboard/ops` agentic operations and deployment-readiness review
+- `/dashboard/reports` report history and PDF export flow
 
-### 3. **Explainable AI Recommendations**
-   - **Novelty**: Not just alerts, but specific, prioritized action items with business context
-   - **Advantage**: Procurement teams get clear next steps instead of vague warnings
-   - **Impact**: Accelerates decision-making and reduces operational disruption costs
+## APIs
 
-### 4. **Unified Risk Heatmap Visualization**
-   - **Novelty**: Interactive geospatial and temporal risk mapping with drill-down capabilities
-   - **Advantage**: Visual correlation of multiple risk factors across global supplier networks
-   - **Impact**: Enables strategic portfolio optimization and contingency planning
+- `POST /api/analyze`
+  Runs supplier intelligence on JSON or CSV input.
+- `GET /api/history`
+  Returns persisted analysis runs.
+- `GET /api/health`
+  Returns service health plus deployment posture.
+- `GET /api/ops/summary`
+  Returns readiness score, checks, and orchestration summary.
+- `GET /api/suppliers`
+  Returns stored supplier portfolio data.
+- `POST /api/suppliers`
+  Adds a supplier into the portfolio store.
+- `GET /api/export?format=csv`
+  Exports portfolio data as CSV.
+- `POST /api/seed`
+  Seeds the workspace with a realistic demo portfolio and a starter history entry.
 
-### 5. **Zero-Configuration Onboarding**
-   - **Novelty**: Upload CSV and get instant AI-powered analysis without complex setup
-   - **Advantage**: Democratizes advanced risk intelligence for organizations of all sizes
-   - **Impact**: Lowers adoption barriers and accelerates ROI
+## Architecture
 
-## MVP Highlights and Competitive Advantages
+### Frontend
 
-SwiftPath-AI's Minimum Viable Product delivers enterprise-grade features that surpass current market offerings:
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui-style component primitives
+- Recharts for dashboard visualization
 
-### Core MVP Features
-- **Authentication System**: Secure login/signup with user management
-- **Supplier Portfolio Management**: Upload, view, and manage supplier databases
-- **Live AI Scan Engine**: One-click risk analysis for entire portfolios
-- **Risk Dashboard**: Real-time metrics, charts, and status indicators
-- **Alert Management**: Prioritized risk notifications with resolution tracking
-- **Report Generation**: Automated PDF/CSV exports with executive summaries
-- **Agent Monitoring**: Live view of AI agent activities and health status
+### Backend / Agent Layer
 
-### Competitive Advantages Over Present Systems
-- **Speed**: Real-time vs. quarterly/batch processing
-- **Accuracy**: AI contextual analysis vs. rule-based scoring
-- **Actionability**: Specific recommendations vs. generic alerts
-- **Scalability**: Handles thousands of suppliers simultaneously
-- **Cost-Effectiveness**: Zero infrastructure setup, pay-as-you-grow model
-- **User Experience**: Intuitive dashboard vs. complex enterprise software
+- Next.js route handlers for API endpoints
+- Multi-signal supplier analysis pipeline in `src/lib/server/supplier-intelligence.ts`
+- External signal usage:
+  - GDELT for public news coverage
+  - Open-Meteo for weather disruption context
+  - Yahoo Finance for public ticker-based financial context
+  - Local sanctions CSV for compliance checks
+- Live reasoning path through Groq when configured
+- Local deterministic fallback when no live key is present
 
-## Technology Stack
+### Persistence
 
-- **Frontend**: Next.js 16 App Router, TypeScript, Tailwind CSS v4
-- **UI Components**: Radix-based shadcn/ui primitives, Recharts for data visualization
-- **AI/ML**: Groq API for web-backed reasoning, Google Generative AI integration
-- **Data Sources**: GDELT (news), Open-Meteo (weather), Yahoo Finance (financial), Custom sanctions database
-- **Backend**: Next.js API routes with Node.js runtime
-- **Data Management**: JSON-based persistence, CSV processing
-- **Authentication**: Custom user store with session management
+- `data/suppliers.json` for supplier portfolio storage
+- `data/analysis-history.json` for scan history and audit trail
+- `data/sanctions_list.csv` for simple compliance matching
 
-## Routes
+## Demo Flow
 
-- `/` landing page
-- `/login`
-- `/signup`
-- `/dashboard`
-- `/dashboard/suppliers`
-- `/dashboard/alerts`
-- `/dashboard/agents`
-- `/dashboard/reports`
-- `/api/analyze`
-- `/api/health`
-- `/api/history`
+For a 5-7 minute classroom demo:
 
-## API Endpoints
+1. Open `/dashboard/suppliers`.
+2. Click `Load Demo Portfolio`.
+3. Show the supplier coverage, high-risk count, and heatmap.
+4. Open `/dashboard`.
+5. Click `Run Live AI Scan`.
+6. Show the updated trendline, top at-risk suppliers, and scan history.
+7. Open `/dashboard/ops`.
+8. Explain the readiness checks, fallback posture, and orchestration stages.
+9. Open `/dashboard/reports`.
+10. Generate or download a report to show the final operator output.
 
-- `POST /api/analyze` - Run supplier risk analysis
-- `GET /api/health` - System health check
-- `GET/POST /api/history` - Analysis history management
-- `POST /api/login` - User authentication
-- `POST /api/signup` - User registration
-- `GET /api/suppliers` - Supplier data retrieval
-- `GET /api/news` - News intelligence
-- `GET /api/weather` - Weather risk data
-- `GET /api/reports/download` - Report generation
+That sequence makes the project feel like a real operations workflow rather than a static dashboard.
 
-## Project Structure
+## Setup
 
-```
-src/
-  app/
-    (auth)/
-      login/page.tsx
-      signup/page.tsx
-    (dashboard)/
-      layout.tsx
-      loading.tsx
-      dashboard/
-        page.tsx
-        agents/
-          page.tsx
-        alerts/
-          page.tsx
-        news/
-          page.tsx
-        profile/
-          page.tsx
-        reports/
-          heatmaps.tsx
-          page.tsx
-        settings/
-          page.tsx
-        suppliers/
-          page.tsx
-        weather/
-          page.tsx
-    api/
-      analyze/
-        route.ts
-      export/
-        route.ts
-      health/
-        route.ts
-      history/
-        route.ts
-      login/
-        route.ts
-      logout/
-        route.ts
-      me/
-        route.ts
-      news/
-        route.ts
-      reports/
-        download/
-          route.ts
-      seed/
-        route.ts
-      signup/
-        route.ts
-      suppliers/
-        route.ts
-      weather/
-        route.ts
-    globals.css
-    layout.tsx
-    page.tsx
+### Prerequisites
 
-  components/
-    agent-log.tsx
-    auth-showcase.tsx
-    command-palette.tsx
-    dashboard-shell.tsx
-    live-scan-card.tsx
-    logo.tsx
-    navbar.tsx
-    risk-gauge.tsx
-    risk-heatmap-advanced.tsx
-    risk-heatmap.tsx
-    sidebar.tsx
-    stat-card.tsx
-    supplier-table.tsx
-    theme-provider.tsx
-    theme-toggle.tsx
-    ui/
-      avatar.tsx
-      badge.tsx
-      button.tsx
-      card.tsx
-      checkbox.tsx
-      command.tsx
-      dialog.tsx
-      dropdown-menu.tsx
-      input.tsx
-      label.tsx
-      scroll-area.tsx
-      select.tsx
-      separator.tsx
-      skeleton.tsx
-      tabs.tsx
-      tooltip.tsx
+- Node.js 20 or newer
+- npm
 
-  lib/
-    csv.ts
-    mock-data.ts
-    pdf-generator.ts
-    sample-suppliers.ts
-    utils.ts
-    server/
-      auth-store.ts
-      history-store.ts
-      supplier-intelligence.ts
-      user-store.ts
+### Install
 
-  types/
-    index.ts
-
-data/
-  analysis-history.json
-  sanctions_list.csv
-  suppliers.json
-  users.json
-
-public/
-  sample-suppliers.csv
+```bash
+npm install
 ```
 
-## Setup and Installation
+### Environment
 
-1. **Prerequisites**
-   - Node.js >= 20
-   - npm or yarn
+Create `.env.local`:
 
-2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+```bash
+GROQ_API_KEY=your_key_here
+GROQ_MODEL=groq/compound-mini
+```
 
-3. **Environment Configuration**
-   Create `.env.local`:
-   ```bash
-   GROQ_API_KEY=your_groq_api_key_here
-   GROQ_MODEL=groq/compound-mini
-   ```
+If `GROQ_API_KEY` is missing, the app still works using the local fallback path.
 
-4. **Development Server**
-   ```bash
-   npm run dev
-   ```
+### Run
 
-5. **Production Build**
-   ```bash
-   npm run build
-   npm start
-   ```
+```bash
+npm run dev
+```
 
-## Usage
-
-1. **Sign Up/Login**: Create an account or log in
-2. **Upload Suppliers**: Import CSV or use sample data
-3. **Run Live Scan**: Trigger AI analysis for risk assessment
-4. **Monitor Dashboard**: View risk metrics, heatmaps, and alerts
-5. **Generate Reports**: Export insights and recommendations
-
-## Live Backend
-
-`/api/analyze` accepts supplier rows as JSON and runs a real multi-agent flow:
-
-1. News Agent
-   Pulls recent public coverage from GDELT.
-2. Weather Agent
-   Pulls forecast risk from Open-Meteo.
-3. Groq Research Agent
-   Uses web-backed reasoning for geopolitical, financial, and compliance scoring.
-4. Aggregation
-   Produces weighted supplier risk, recommendation, next actions, and citations.
-
-If `GROQ_API_KEY` is missing, SwiftPath automatically falls back to a local scoring path instead of failing.
-
-## Architecture and Data Flow
-
-1. **Input Processing**: CSV/JSON supplier data normalized and validated
-2. **Agent Orchestration**: Parallel execution of specialized AI agents
-3. **Signal Aggregation**: Weighted scoring from multiple data sources
-4. **Risk Calculation**: Contextual analysis using Groq AI
-5. **Recommendation Engine**: Actionable mitigation strategies
-6. **Persistence**: Analysis history and alert tracking
-7. **Visualization**: Interactive dashboard with real-time updates
-
-## Future Roadmap
-
-- Advanced ML models for predictive risk forecasting
-- Integration with ERP systems (SAP, Oracle)
-- Mobile application for field teams
-- Blockchain-based supplier verification
-- Multi-language support and global expansion
-
-## Notes
-
-- The dashboard includes a “Run Live AI Scan” card that exercises the real backend from the UI.
-- The sample portfolio data is realistic but fictional.
-- The root dashboard route was implemented at `/dashboard` because `/` is reserved for the landing page.
-
-## Verification
-
-The app has been verified with:
+### Production Build
 
 ```bash
 npm run build
+npm start
 ```
 
-## License
+## Presentation-Friendly Features Added
 
-MIT License - see LICENSE file for details
+- Shared supplier normalization so pages read from one consistent portfolio model
+- Seeded demo portfolio instead of placeholder scan data
+- Dedicated `Agentic Ops` page for readiness and deployment posture
+- `ops/summary` API for professor-facing observability
+- Improved dashboard mission brief and action framing
+- Better supplier onboarding with sample CSV download, import, export, and refresh
+- Stronger fallback messaging so the MVP still presents well without a live model key
 
-## Contributing
+## Verification
 
-Contributions welcome! Please read our contributing guidelines and code of conduct.
+Verified successfully with:
 
-## Contact
+```bash
+npm run typecheck
+npm run build
+```
 
-For questions or support, please reach out to the development team.
+## Suggested Next Steps
 
+If you want to push this from strong MVP to near-capstone quality, the next upgrades would be:
+
+- role-based authentication and per-user data isolation
+- queue-backed background scans
+- real alert state transitions and acknowledgement workflow
+- database-backed persistence instead of JSON files
+- scheduled scan jobs and notification delivery
+- evaluation dashboards for model quality, latency, and escalation accuracy
+
+## Project Goal
+
+SwiftPath AI is designed to answer a simple question:
+
+`How do we make an AI system behave like an operations tool, not just a chatbot?`
+
+This MVP answers that with portfolio ingest, multi-agent scoring, escalation, persistence, reporting, and readiness visibility in one coherent workflow.

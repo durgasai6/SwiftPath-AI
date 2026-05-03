@@ -12,7 +12,6 @@ import {
 import {
   ArrowDown,
   ArrowUp,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   MoreHorizontal,
@@ -221,7 +220,7 @@ export function SupplierTable({ data, isLoading = false }: SupplierTableProps) {
 
       <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1040px]">
+          <table className="w-full min-w-[980px]">
             <thead className="border-b border-white/10 bg-white/5">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
@@ -257,7 +256,7 @@ export function SupplierTable({ data, isLoading = false }: SupplierTableProps) {
         <p className="text-sm text-muted">
           Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="secondary"
             size="sm"
@@ -276,10 +275,10 @@ export function SupplierTable({ data, isLoading = false }: SupplierTableProps) {
             Next
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm">
-            Rows / page
-            <ChevronDown className="h-4 w-4" />
-          </Button>
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-muted">
+            <span>{table.getState().pagination.pageSize}</span>
+            <span>rows per page</span>
+          </div>
         </div>
       </div>
     </div>

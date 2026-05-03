@@ -43,19 +43,19 @@ export default function NewsPage() {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="section-eyebrow">News Monitor</p>
+          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">Supply Chain News</h2>
+        </div>
 
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between gap-4">
-        <h2 className="text-3xl font-semibold text-white">
-          Supply Chain News
-        </h2>
-
-        <div className="flex gap-2">
+        <div className="flex w-full gap-2 md:max-w-md">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && setQuery(input)}
             placeholder="Search news..."
+            className="flex-1"
           />
           <Button onClick={() => setQuery(input)}>
             <Newspaper className="h-4 w-4" />
@@ -63,7 +63,6 @@ export default function NewsPage() {
         </div>
       </div>
 
-      {/* CATEGORY FILTERS */}
       <div className="flex flex-wrap gap-2">
         {CATEGORIES.map((c) => (
           <Button
@@ -79,40 +78,34 @@ export default function NewsPage() {
         ))}
       </div>
 
-      {/* NEWS */}
       {loading ? (
         <p className="text-muted">Loading news...</p>
       ) : articles.length === 0 ? (
         <p className="text-muted">No news found</p>
       ) : (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid gap-4 md:grid-cols-2">
           {articles.map((a, i) => (
-            <Card key={i} className="overflow-hidden bg-white/5 border-white/10">
-
-              {/* IMAGE */}
+            <Card key={i} className="flex h-full flex-col overflow-hidden border-white/10 bg-white/5">
               <img
                 src={a.image}
                 alt={a.title}
                 className="w-full h-48 object-cover"
+                loading="lazy"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
                 }}
               />
 
-              <CardContent className="p-4 space-y-2">
-                <div className="text-xs text-muted">
-                  {a.source}
-                </div>
+              <CardContent className="flex flex-1 flex-col gap-2 p-4">
+                <div className="text-xs text-muted">{a.source}</div>
 
-                <p className="text-white font-medium leading-6">
-                  {a.title}
-                </p>
+                <p className="line-clamp-3 font-medium leading-6 text-foreground">{a.title}</p>
 
                 <a
                   href={a.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 flex items-center gap-1 text-sm"
+                  className="mt-auto flex items-center gap-1 pt-2 text-sm text-blue-400"
                 >
                   Read <ExternalLink className="h-3 w-3" />
                 </a>

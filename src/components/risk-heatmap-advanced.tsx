@@ -25,13 +25,6 @@ interface RiskHeatmapProps {
   }>;
 }
 
-const REGION_COLORS = {
-  "Asia-Pacific": "#8B5CF6",
-  "Americas": "#EC4899",
-  "Europe": "#06B6D4",
-  "Middle East & Africa": "#F59E0B"
-};
-
 const RISK_COLORS = {
   low: "#10B981",
   medium: "#3B82F6",
@@ -39,59 +32,79 @@ const RISK_COLORS = {
   critical: "#EF4444"
 };
 
+const REGION_COLORS: Record<string, string> = {
+  "Asia-Pacific": "#8B5CF6",
+  Americas: "#EC4899",
+  Europe: "#06B6D4",
+  "Middle East & Africa": "#F59E0B"
+};
+
 export function RiskHeatmapVisualization({ suppliers }: RiskHeatmapProps) {
   const heatmapData = useMemo<SupplierHeatmapData[]>(() => {
-    const regions = new Map<string, { low: number; medium: number; high: number; critical: number; scores: number[] }>();
+    const regions = new Map<
+      string,
+      { low: number; medium: number; high: number; critical: number; scores: number[] }
+    >();
 
     suppliers.forEach((supplier) => {
       const region = supplier.locationLabel || "Unknown";
+
       if (!regions.has(region)) {
         regions.set(region, { low: 0, medium: 0, high: 0, critical: 0, scores: [] });
       }
 
-      const data = regions.get(region)!;
+      const data = regions.get(region);
+      if (!data) return;
+
       data.scores.push(supplier.riskScore);
 
-      if (supplier.riskScore < 35) data.low++;
-      else if (supplier.riskScore < 60) data.medium++;
-      else if (supplier.riskScore < 75) data.high++;
-      else data.critical++;
+      if (supplier.riskScore < 35) data.low += 1;
+      else if (supplier.riskScore < 60) data.medium += 1;
+      else if (supplier.riskScore < 75) data.high += 1;
+      else data.critical += 1;
     });
 
     return Array.from(regions.entries()).map(([region, data]) => ({
       region,
-      ...data,
+      low: data.low,
+      medium: data.medium,
+      high: data.high,
+      critical: data.critical,
       total: data.low + data.medium + data.high + data.critical,
-      averageRisk: Math.round(data.scores.reduce((a, b) => a + b, 0) / data.scores.length)
+      averageRisk: Math.round(data.scores.reduce((sum, score) => sum + score, 0) / data.scores.length)
     }));
   }, [suppliers]);
 
   const overallRiskDistribution = useMemo(() => {
-    const distribution = {
-      low: suppliers.filter(s => s.riskScore < 35).length,
-      medium: suppliers.filter(s => s.riskScore >= 35 && s.riskScore < 60).length,
-      high: suppliers.filter(s => s.riskScore >= 60 && s.riskScore < 75).length,
-      critical: suppliers.filter(s => s.riskScore >= 75).length
-    };
-
     return [
-      { name: "Low", value: distribution.low, fill: RISK_COLORS.low },
-      { name: "Medium", value: distribution.medium, fill: RISK_COLORS.medium },
-      { name: "High", value: distribution.high, fill: RISK_COLORS.high },
-      { name: "Critical", value: distribution.critical, fill: RISK_COLORS.critical }
+      { name: "Low", value: suppliers.filter((supplier) => supplier.riskScore < 35).length, fill: RISK_COLORS.low },
+      {
+        name: "Medium",
+        value: suppliers.filter((supplier) => supplier.riskScore >= 35 && supplier.riskScore < 60).length,
+        fill: RISK_COLORS.medium
+      },
+      {
+        name: "High",
+        value: suppliers.filter((supplier) => supplier.riskScore >= 60 && supplier.riskScore < 75).length,
+        fill: RISK_COLORS.high
+      },
+      {
+        name: "Critical",
+        value: suppliers.filter((supplier) => supplier.riskScore >= 75).length,
+        fill: RISK_COLORS.critical
+      }
     ];
   }, [suppliers]);
 
-  const getRiskColor = (score: number): string => {
+  function getRiskColor(score: number) {
     if (score < 35) return RISK_COLORS.low;
     if (score < 60) return RISK_COLORS.medium;
     if (score < 75) return RISK_COLORS.high;
     return RISK_COLORS.critical;
-  };
+  }
 
   return (
     <div className="grid gap-6">
-      {/* Risk Distribution by Region */}
       <Card>
         <CardHeader>
           <CardTitle>Risk Distribution by Region</CardTitle>
@@ -100,22 +113,19 @@ export function RiskHeatmapVisualization({ suppliers }: RiskHeatmapProps) {
           <div className="space-y-4">
             {heatmapData.map((data) => (
               <div key={data.region} className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <div
                       className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: (REGION_COLORS as Record<string, string>)[data.region] || "#9CA3AF" }}
+                      style={{ backgroundColor: REGION_COLORS[data.region] || "#9CA3AF" }}
                     />
                     <span className="font-medium">{data.region}</span>
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    Avg Risk: {data.averageRisk}/100
-                  </span>
+                  <span className="text-sm text-muted-foreground">Avg Risk: {data.averageRisk}/100</span>
                 </div>
 
-                {/* Stacked risk bar */}
                 <div className="flex h-8 overflow-hidden rounded-lg border border-border bg-muted">
-                  {data.low > 0 && (
+                  {data.low > 0 ? (
                     <div
                       className="flex items-center justify-center text-xs font-semibold text-white"
                       style={{
@@ -124,10 +134,10 @@ export function RiskHeatmapVisualization({ suppliers }: RiskHeatmapProps) {
                       }}
                       title={`Low: ${data.low}`}
                     >
-                      {data.low > 0 && data.low}
+                      {data.low}
                     </div>
-                  )}
-                  {data.medium > 0 && (
+                  ) : null}
+                  {data.medium > 0 ? (
                     <div
                       className="flex items-center justify-center text-xs font-semibold text-white"
                       style={{
@@ -136,10 +146,10 @@ export function RiskHeatmapVisualization({ suppliers }: RiskHeatmapProps) {
                       }}
                       title={`Medium: ${data.medium}`}
                     >
-                      {data.medium > 0 && data.medium}
+                      {data.medium}
                     </div>
-                  )}
-                  {data.high > 0 && (
+                  ) : null}
+                  {data.high > 0 ? (
                     <div
                       className="flex items-center justify-center text-xs font-semibold text-white"
                       style={{
@@ -148,10 +158,10 @@ export function RiskHeatmapVisualization({ suppliers }: RiskHeatmapProps) {
                       }}
                       title={`High: ${data.high}`}
                     >
-                      {data.high > 0 && data.high}
+                      {data.high}
                     </div>
-                  )}
-                  {data.critical > 0 && (
+                  ) : null}
+                  {data.critical > 0 ? (
                     <div
                       className="flex items-center justify-center text-xs font-semibold text-white"
                       style={{
@@ -160,12 +170,12 @@ export function RiskHeatmapVisualization({ suppliers }: RiskHeatmapProps) {
                       }}
                       title={`Critical: ${data.critical}`}
                     >
-                      {data.critical > 0 && data.critical}
+                      {data.critical}
                     </div>
-                  )}
+                  ) : null}
                 </div>
 
-                <div className="flex gap-4 text-sm">
+                <div className="flex flex-wrap gap-4 text-sm">
                   <div>
                     <span className="text-muted-foreground">Low:</span> <span className="font-semibold">{data.low}</span>
                   </div>
@@ -185,7 +195,6 @@ export function RiskHeatmapVisualization({ suppliers }: RiskHeatmapProps) {
         </CardContent>
       </Card>
 
-      {/* Overall Risk Distribution Pie Chart */}
       <Card>
         <CardHeader>
           <CardTitle>Overall Risk Distribution</CardTitle>
@@ -222,7 +231,6 @@ export function RiskHeatmapVisualization({ suppliers }: RiskHeatmapProps) {
         </CardContent>
       </Card>
 
-      {/* Country Risk Matrix */}
       <Card>
         <CardHeader>
           <CardTitle>Country Risk Matrix</CardTitle>
@@ -230,21 +238,21 @@ export function RiskHeatmapVisualization({ suppliers }: RiskHeatmapProps) {
         <CardContent>
           <div className="grid gap-3">
             {suppliers
-              .sort((a, b) => b.riskScore - a.riskScore)
+              .sort((left, right) => right.riskScore - left.riskScore)
               .map((supplier) => (
                 <div key={supplier.id} className="flex items-center gap-3 rounded-lg border border-border p-3">
                   <div
-                    className="h-3 w-3 rounded-full shrink-0"
+                    className="h-3 w-3 shrink-0 rounded-full"
                     style={{ backgroundColor: getRiskColor(supplier.riskScore) }}
                   />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium truncate">{supplier.name}</span>
-                      <span className="text-sm font-semibold ml-2">{supplier.riskScore}/100</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate font-medium">{supplier.name}</span>
+                      <span className="ml-2 text-sm font-semibold">{supplier.riskScore}/100</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>{supplier.country}</span>
-                      <span>•</span>
+                      <span>|</span>
                       <span className="capitalize">{supplier.riskLevel}</span>
                     </div>
                   </div>
