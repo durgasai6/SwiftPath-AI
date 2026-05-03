@@ -3,10 +3,29 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  Area, AreaChart, CartesianGrid, Cell, Legend, Pie, PieChart,
-  ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip,
+  XAxis,
+  YAxis
 } from "recharts";
-import { AlertTriangle, Bot, Globe2, ShieldAlert, Truck } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  Bot,
+  Globe2,
+  ShieldAlert,
+  ShieldCheck,
+  Truck,
+  Workflow
+} from "lucide-react";
+import type { OpsSummary } from "@/types";
 import { LiveScanCard } from "@/components/live-scan-card";
 import { StatCard } from "@/components/stat-card";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +44,7 @@ function AreaTooltip({
   label?: string;
 }) {
   if (!active || !payload?.length) return null;
+
   return (
     <div className="rounded-2xl border border-white/10 bg-surface-strong p-4 shadow-[0_18px_50px_rgba(2,6,23,0.24)]">
       <p className="text-sm font-semibold text-foreground">{label}</p>
@@ -65,6 +85,7 @@ export default function DashboardPage() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [opsSummary, setOpsSummary] = useState<OpsSummary | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -73,7 +94,7 @@ export default function DashboardPage() {
   useEffect(() => {
     setLoading(true);
     fetch("/api/history")
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data) => {
         setHistory(Array.isArray(data) ? data : data.history ?? []);
       })
@@ -81,37 +102,43 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, [refreshKey]);
 
+  useEffect(() => {
+    fetch("/api/ops/summary")
+      .then((response) => response.json())
+      .then((payload) => setOpsSummary(payload))
+      .catch(() => {});
+  }, [refreshKey]);
+
   const latestEntry = history[0];
   const allSuppliers = latestEntry?.suppliers ?? [];
   const totalSuppliers = latestEntry?.summary?.supplierCount ?? 0;
   const averageRisk = latestEntry?.summary?.averageRiskScore ?? 0;
   const criticalSuppliers = latestEntry?.summary?.criticalSuppliers ?? 0;
-  const highRiskSuppliers = allSuppliers.filter((s) => s.riskScore >= 60).length;
+  const highRiskSuppliers = allSuppliers.filter((supplier) => supplier.riskScore >= 60).length;
 
-  const topAtRisk = [...allSuppliers].sort((a, b) => b.riskScore - a.riskScore).slice(0, 5);
+  const topAtRisk = [...allSuppliers].sort((left, right) => right.riskScore - left.riskScore).slice(0, 5);
 
   const riskDistribution = [
-    { name: "Low", value: allSuppliers.filter((s) => s.riskScore < 35).length, fill: "#10B981" },
-    { name: "Medium", value: allSuppliers.filter((s) => s.riskScore >= 35 && s.riskScore < 60).length, fill: "#3B82F6" },
-    { name: "High", value: allSuppliers.filter((s) => s.riskScore >= 60 && s.riskScore < 75).length, fill: "#F59E0B" },
-    { name: "Critical", value: allSuppliers.filter((s) => s.riskScore >= 75).length, fill: "#EF4444" }
+    { name: "Low", value: allSuppliers.filter((supplier) => supplier.riskScore < 35).length, fill: "#10B981" },
+    { name: "Medium", value: allSuppliers.filter((supplier) => supplier.riskScore >= 35 && supplier.riskScore < 60).length, fill: "#3B82F6" },
+    { name: "High", value: allSuppliers.filter((supplier) => supplier.riskScore >= 60 && supplier.riskScore < 75).length, fill: "#F59E0B" },
+    { name: "Critical", value: allSuppliers.filter((supplier) => supplier.riskScore >= 75).length, fill: "#EF4444" }
   ];
 
-  const dashboardRiskHistory = history
-    .slice(0, 30)
-    .reverse()
-    .map((entry) => ({
-      date: entry.timestamp?.slice(0, 10) ?? "",
-      averageRiskScore: entry.summary?.averageRiskScore ?? 0,
-      criticalAlerts: entry.summary?.criticalSuppliers ?? 0,
-      suppliersScanned: entry.summary?.supplierCount ?? 0
-    }));
+  const dashboardRiskHistory = history.slice(0, 30).reverse().map((entry) => ({
+    date: entry.timestamp?.slice(0, 10) ?? "",
+    averageRiskScore: entry.summary?.averageRiskScore ?? 0,
+    criticalAlerts: entry.summary?.criticalSuppliers ?? 0,
+    suppliersScanned: entry.summary?.supplierCount ?? 0
+  }));
 
   if (loading) {
     return (
       <div className="space-y-6">
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {[1,2,3,4].map((i) => <Skeleton key={i} className="h-32 rounded-3xl" />)}
+          {[1, 2, 3, 4].map((item) => (
+            <Skeleton key={item} className="h-32 rounded-3xl" />
+          ))}
         </section>
         <Skeleton className="h-64 rounded-3xl" />
       </div>
@@ -127,7 +154,7 @@ export default function DashboardPage() {
           <StatCard title="Scans Completed" value="0" change="Start a scan" changeType="increase" icon={Bot} accentColor="success" />
           <StatCard title="Avg Risk Score" value="0" change="No alerts yet" changeType="increase" icon={AlertTriangle} accentColor="warning" />
         </section>
-        <LiveScanCard onScanComplete={() => setRefreshKey((k) => k + 1)} />
+        <LiveScanCard onScanComplete={() => setRefreshKey((current) => current + 1)} />
         <Card className="border-white/10 bg-white/5">
           <CardContent className="flex flex-col items-center justify-center gap-4 py-20 text-center">
             <p className="text-muted">No scan history yet. Run your first live scan above to populate your dashboard.</p>
@@ -146,7 +173,83 @@ export default function DashboardPage() {
         <StatCard title="Avg Risk Score" value={String(averageRisk)} change="Latest scan" changeType="increase" icon={AlertTriangle} accentColor="warning" />
       </section>
 
-      <LiveScanCard onScanComplete={() => setRefreshKey((k) => k + 1)} />
+      {opsSummary ? (
+        <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+          <Card className="border-white/10 bg-white/5">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div>
+                <p className="section-eyebrow">Mission Brief</p>
+                <CardTitle>Agentic Ops Readiness</CardTitle>
+              </div>
+              <Badge
+                variant={
+                  opsSummary.deploymentStage === "ops-ready"
+                    ? "success"
+                    : opsSummary.deploymentStage === "pilot-ready"
+                    ? "warning"
+                    : "secondary"
+                }
+              >
+                {opsSummary.deploymentStage}
+              </Badge>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap items-end gap-3">
+                <span className="font-mono text-5xl font-semibold text-foreground">{opsSummary.readinessScore}</span>
+                <span className="pb-2 text-sm text-muted">readiness score</span>
+              </div>
+              <p className="max-w-2xl text-sm leading-7 text-muted">
+                SwiftPath is positioned as an industrial MVP: it supports seeded portfolio ingest, deterministic fallback,
+                live escalation when configured, persistent scan history, and leadership-ready exports.
+              </p>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="rounded-3xl border border-white/10 bg-background/40 p-4">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-success" />
+                    <p className="font-semibold text-foreground">Latest scan posture</p>
+                  </div>
+                  <p className="mt-2 text-sm text-muted">
+                    {opsSummary.latestScan.modeUsed === "none"
+                      ? "Run the first scan to populate the audit trail."
+                      : `${opsSummary.latestScan.modeUsed} mode with ${opsSummary.latestScan.criticalSuppliers} critical suppliers in the latest run.`}
+                  </p>
+                </div>
+                <div className="rounded-3xl border border-white/10 bg-background/40 p-4">
+                  <div className="flex items-center gap-2">
+                    <Workflow className="h-4 w-4 text-primary" />
+                    <p className="font-semibold text-foreground">Portfolio coverage</p>
+                  </div>
+                  <p className="mt-2 text-sm text-muted">
+                    {opsSummary.portfolio.totalSuppliers} suppliers across {opsSummary.portfolio.countriesCovered} countries with {opsSummary.portfolio.singleSourceSuppliers} single-source dependencies.
+                  </p>
+                </div>
+              </div>
+              <Button asChild>
+                <Link href="/dashboard/ops">
+                  Open Agentic Ops
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-white/10 bg-white/5">
+            <CardHeader>
+              <p className="section-eyebrow">Priority Actions</p>
+              <CardTitle>What to emphasize in the demo</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {opsSummary.recommendedActions.slice(0, 3).map((action) => (
+                <div key={action} className="rounded-2xl border border-white/10 bg-background/40 px-4 py-3 text-sm text-foreground/90">
+                  {action}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </section>
+      ) : null}
+
+      <LiveScanCard onScanComplete={() => setRefreshKey((current) => current + 1)} />
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Card className="border-white/10 bg-white/5">
@@ -157,7 +260,7 @@ export default function DashboardPage() {
             </div>
             <Badge variant="secondary">{dashboardRiskHistory.length}-scan view</Badge>
           </CardHeader>
-          <CardContent className="h-85">
+          <CardContent className="h-[320px] sm:h-[360px]">
             {mounted && dashboardRiskHistory.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={dashboardRiskHistory}>
@@ -172,7 +275,15 @@ export default function DashboardPage() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid stroke="rgba(148,163,184,0.14)" strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="date" tickFormatter={(v: string) => new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })} tick={{ fill: "#64748B", fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(value: string) =>
+                      new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                    }
+                    tick={{ fill: "#64748B", fontSize: 12 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <YAxis tick={{ fill: "#64748B", fontSize: 12 }} axisLine={false} tickLine={false} width={32} />
                   <RechartsTooltip content={<AreaTooltip />} />
                   <Area type="monotone" dataKey="averageRiskScore" stroke="#3B82F6" strokeWidth={3} fill="url(#riskGradient)" name="Average Risk Score" />
@@ -193,7 +304,7 @@ export default function DashboardPage() {
             </div>
             <Globe2 className="h-5 w-5 text-primary" />
           </CardHeader>
-          <CardContent className="h-85">
+          <CardContent className="h-[320px] sm:h-[360px]">
             {mounted ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -203,15 +314,21 @@ export default function DashboardPage() {
                     ))}
                   </Pie>
                   <Legend verticalAlign="bottom" formatter={(value) => <span className="text-sm text-muted">{value}</span>} />
-                  <RechartsTooltip content={({ active, payload }) => active && payload?.length ? (
-                    <div className="rounded-2xl border border-white/10 bg-surface-strong p-4">
-                      <p className="text-sm font-semibold text-foreground">{payload[0].name}</p>
-                      <p className="mt-1 font-mono text-lg text-foreground">{payload[0].value} suppliers</p>
-                    </div>
-                  ) : null} />
+                  <RechartsTooltip
+                    content={({ active, payload }) =>
+                      active && payload?.length ? (
+                        <div className="rounded-2xl border border-white/10 bg-surface-strong p-4">
+                          <p className="text-sm font-semibold text-foreground">{payload[0].name}</p>
+                          <p className="mt-1 font-mono text-lg text-foreground">{payload[0].value} suppliers</p>
+                        </div>
+                      ) : null
+                    }
+                  />
                 </PieChart>
               </ResponsiveContainer>
-            ) : <Skeleton className="h-full w-full rounded-3xl" />}
+            ) : (
+              <Skeleton className="h-full w-full rounded-3xl" />
+            )}
           </CardContent>
         </Card>
       </section>
@@ -229,28 +346,36 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {topAtRisk.length === 0 ? (
-              <p className="text-sm text-muted py-4">No supplier data yet. Run a live scan.</p>
-            ) : topAtRisk.map((supplier, i) => {
-              const level = toRiskLevel(supplier.riskScore);
-              return (
-                <div key={i} className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 transition-all duration-200 hover:bg-white/8 md:flex-row md:items-center md:justify-between">
-                  <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <p className="font-semibold text-foreground">{supplier.supplierName}</p>
-                      <Badge className={cn("capitalize", riskBadgeClass(level))}>{riskLevelLabel(level)}</Badge>
+              <p className="py-4 text-sm text-muted">No supplier data yet. Run a live scan.</p>
+            ) : (
+              topAtRisk.map((supplier, index) => {
+                const level = toRiskLevel(supplier.riskScore);
+
+                return (
+                  <div key={index} className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 transition-all duration-200 hover:bg-white/8 md:flex-row md:items-center md:justify-between">
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <p className="font-semibold text-foreground">{supplier.supplierName}</p>
+                        <Badge className={cn("capitalize", riskBadgeClass(level))}>{riskLevelLabel(level)}</Badge>
+                      </div>
+                      <p className="text-sm text-muted">
+                        {supplier.country ?? ""}
+                        {supplier.category ? ` | ${supplier.category}` : ""}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted">{supplier.country ?? ""}{supplier.category ? ` · ${supplier.category}` : ""}</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="rounded-2xl border border-white/10 bg-background/40 px-4 py-2 text-center">
-                      <p className="font-mono text-2xl font-semibold text-foreground">{supplier.riskScore}</p>
-                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted">Risk</p>
+                    <div className="flex items-center gap-4">
+                      <div className="rounded-2xl border border-white/10 bg-background/40 px-4 py-2 text-center">
+                        <p className="font-mono text-2xl font-semibold text-foreground">{supplier.riskScore}</p>
+                        <p className="text-[11px] uppercase tracking-[0.22em] text-muted">Risk</p>
+                      </div>
+                      <Button variant="secondary" size="sm">
+                        Investigate
+                      </Button>
                     </div>
-                    <Button variant="secondary" size="sm">Investigate</Button>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </CardContent>
         </Card>
 
@@ -267,12 +392,12 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {history.slice(0, 8).map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+              <div key={entry.id} className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm font-medium text-foreground">{entry.summary?.supplierCount ?? 0} suppliers scanned</p>
                   <p className="text-xs text-muted">{new Date(entry.timestamp).toLocaleString()}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <p className="font-mono text-sm text-foreground">Avg {entry.summary?.averageRiskScore ?? 0}</p>
                   <p className="text-xs text-danger">{entry.summary?.criticalSuppliers ?? 0} critical</p>
                 </div>

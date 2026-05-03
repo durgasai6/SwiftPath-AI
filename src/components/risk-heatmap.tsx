@@ -20,9 +20,25 @@ function pinColor(level: Supplier["riskLevel"]) {
   }
 }
 
+function tooltipPositionClass(x: number) {
+  if (x <= 24) {
+    return "left-0 translate-x-0";
+  }
+
+  if (x >= 76) {
+    return "right-0 translate-x-0";
+  }
+
+  return "left-1/2 -translate-x-1/2";
+}
+
+function pulseClass(level: Supplier["riskLevel"]) {
+  return level === "high" || level === "critical" ? "animate-ping" : "";
+}
+
 export function RiskHeatmap({ suppliers, className }: RiskHeatmapProps) {
   return (
-    <div className={cn("glass-card-light overflow-hidden p-5", className)}>
+    <div className={cn("glass-card-light p-5", className)}>
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
           <p className="section-eyebrow">Global Coverage</p>
@@ -63,9 +79,20 @@ export function RiskHeatmap({ suppliers, className }: RiskHeatmapProps) {
                   pinColor(supplier.riskLevel)
                 )}
               >
-                <span className={cn("absolute inset-0 rounded-full opacity-40", pinColor(supplier.riskLevel), "animate-ping")} />
+                <span
+                  className={cn(
+                    "absolute inset-0 rounded-full opacity-40",
+                    pinColor(supplier.riskLevel),
+                    pulseClass(supplier.riskLevel)
+                  )}
+                />
               </div>
-              <div className="pointer-events-none absolute top-6 hidden min-w-[180px] rounded-2xl border border-white/10 bg-surface-strong p-3 text-left shadow-[0_20px_50px_rgba(2,6,23,0.25)] group-hover:block">
+              <div
+                className={cn(
+                  "pointer-events-none absolute top-6 z-10 hidden w-[180px] max-w-[calc(100vw-5rem)] rounded-2xl border border-white/10 bg-surface-strong p-3 text-left shadow-[0_20px_50px_rgba(2,6,23,0.25)] group-hover:block",
+                  tooltipPositionClass(supplier.coordinates.x)
+                )}
+              >
                 <p className="text-sm font-semibold text-foreground">
                   {supplier.flag} {supplier.name}
                 </p>

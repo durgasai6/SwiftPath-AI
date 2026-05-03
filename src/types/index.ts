@@ -5,6 +5,8 @@ export type AgentHealthStatus = "healthy" | "degraded" | "busy" | "idle";
 export type FinancialHealth = "up" | "down" | "neutral";
 export type TrendDirection = "up" | "down" | "stable";
 export type AnalysisMode = "local" | "live";
+export type OpsCheckStatus = "ready" | "warning" | "offline";
+export type DeploymentStage = "prototype" | "pilot-ready" | "ops-ready";
 
 export interface SupplierCoordinates {
   lat: number;
@@ -192,5 +194,76 @@ export interface SupplierIntelligenceResponse {
   generatedAt: string;
   modeUsed: AnalysisMode;
   suppliers: SupplierIntelligence[];
+}
+
+export interface AnalysisRunSummary {
+  supplierCount: number;
+  averageRiskScore: number;
+  criticalSuppliers: number;
+  highRiskSuppliers?: number;
+  citationsCollected?: number;
+}
+
+export interface AnalysisHistorySupplier {
+  supplierName: string;
+  country?: string;
+  industry?: string;
+  category?: string;
+  riskScore: number;
+  riskLevel?: RiskLevel;
+  recommendation?: string;
+  annual_spend_usd?: number;
+  on_time_delivery_pct?: number;
+  inventory_buffer_days?: number;
+  supplier_health?: "strong" | "stable" | "weak";
+  criticality?: "low" | "medium" | "high" | "critical";
+  single_source?: boolean;
+}
+
+export interface AnalysisHistoryEntry {
+  id: string;
+  timestamp: string;
+  generatedAt?: string;
+  modeUsed?: AnalysisMode;
+  summary: AnalysisRunSummary;
+  suppliers: AnalysisHistorySupplier[];
+}
+
+export interface OpsCheck {
+  id: string;
+  title: string;
+  description: string;
+  status: OpsCheckStatus;
+  detail: string;
+}
+
+export interface OpsStage {
+  id: string;
+  title: string;
+  description: string;
+  status: OpsCheckStatus;
+}
+
+export interface OpsSummary {
+  generatedAt: string;
+  readinessScore: number;
+  deploymentStage: DeploymentStage;
+  modePreference: AnalysisMode;
+  latestScan: {
+    timestamp: string | null;
+    supplierCount: number;
+    averageRiskScore: number;
+    criticalSuppliers: number;
+    modeUsed: AnalysisMode | "none";
+  };
+  portfolio: {
+    totalSuppliers: number;
+    highRiskSuppliers: number;
+    singleSourceSuppliers: number;
+    countriesCovered: number;
+  };
+  checks: OpsCheck[];
+  orchestration: OpsStage[];
+  recommendedActions: string[];
 }
 

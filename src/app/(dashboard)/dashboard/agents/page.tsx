@@ -22,7 +22,7 @@ export default function AgentsPage() {
   useEffect(() => {
     fetch("/api/health").then(r => r.json()).then(setHealthData).catch(() => {});
     fetch("/api/history").then(r => r.json()).then(data => {
-      setHistory(Array.isArray(data) ? data : []);
+      setHistory(Array.isArray(data) ? data : (data.history ?? []));
     }).catch(() => {});
   }, []);
 
@@ -67,11 +67,12 @@ export default function AgentsPage() {
   const agentLogEntries = history.slice(0, 10).flatMap((entry: any, i: number) =>
     (entry.suppliers ?? []).slice(0, 3).map((s: any, j: number) => ({
       id: `${entry.id}-${j}`,
+      status: s.riskScore >= 75 ? "alert" : s.riskScore >= 60 ? "processing" : "complete",
       timestamp: entry.timestamp,
       agentName: ["News Agent", "Weather Agent", "Geo Agent", "Financial Agent"][j % 4],
       action: "Risk assessment",
       supplierName: s.supplierName,
-      result: s.riskLevel ?? (s.riskScore >= 75 ? "critical" : s.riskScore >= 60 ? "warning" : "ok"),
+      result: s.riskScore >= 75 ? "critical" : s.riskScore >= 60 ? "warning" : "success",
       durationMs: Math.floor(400 + Math.random() * 1200)
     }))
   );
@@ -111,7 +112,7 @@ export default function AgentsPage() {
           </CardHeader>
           <CardContent>
             <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-background/30 p-6">
-              <div className="grid gap-4 lg:grid-cols-5">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
                 {pipelineNodes.map((node, index) => {
                   const Icon = node.icon;
                   return (
@@ -124,10 +125,10 @@ export default function AgentsPage() {
                         <p className="mt-2 text-sm leading-6 text-muted">{node.subtitle}</p>
                       </div>
                       {index < pipelineNodes.length - 1 && (
-                        <div className="hidden lg:block">
+                        <div className="hidden xl:block">
                           <div className="absolute left-full top-1/2 flex w-10 -translate-y-1/2 items-center justify-center">
                             <div className="absolute inset-x-0 h-px bg-linear-to-r from-primary/60 to-primary/5" />
-                            <div className="absolute left-2 h-2 w-2 rounded-full bg-primary animate-ping" />
+                            <div className="absolute left-2 h-2 w-2 rounded-full bg-primary/70" />
                             <ArrowRight className="relative h-4 w-4 text-primary" />
                           </div>
                         </div>
@@ -159,7 +160,7 @@ export default function AgentsPage() {
         <CardContent>
           <div className="overflow-hidden rounded-3xl border border-white/10">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-215">
+              <table className="w-full min-w-[860px]">
                 <thead className="border-b border-white/10 bg-white/5">
                   <tr>
                     {["Timestamp", "Agent", "Action", "Supplier", "Result", "Duration"].map((col) => (

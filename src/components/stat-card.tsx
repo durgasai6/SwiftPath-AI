@@ -41,10 +41,12 @@ export function StatCard({
     >
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-4">
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-sm text-muted">{title}</p>
             <div className="mt-3 flex items-center gap-3">
-              <span className="font-mono text-3xl font-semibold tracking-tight text-foreground">{value}</span>
+              <span className="break-words font-mono text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
+                {value}
+              </span>
               {pulse ? <span className={cn("pulse-dot text-danger", accentColor === "success" && "text-success")} /> : null}
             </div>
           </div>
@@ -54,9 +56,9 @@ export function StatCard({
           </div>
         </div>
 
-        <div className="mt-5 inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-muted">
+        <div className="mt-5 inline-flex max-w-full items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-muted">
           <ChangeIcon className="h-3.5 w-3.5" />
-          <span>{change}</span>
+          <span className="truncate">{change}</span>
         </div>
       </CardContent>
     </Card>

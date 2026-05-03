@@ -15,7 +15,8 @@ import {
   Newspaper,
   Settings,
   Truck,
-  User
+  User,
+  Workflow
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -28,6 +29,7 @@ const navigation = [
   { label: "Suppliers", href: "/dashboard/suppliers", icon: Truck },
   { label: "Alerts", href: "/dashboard/alerts", icon: Bell },
   { label: "Agent Activity", href: "/dashboard/agents", icon: Bot },
+  { label: "Agentic Ops", href: "/dashboard/ops", icon: Workflow },
   { label: "Reports", href: "/dashboard/reports", icon: FileText },
   { label: "News Feed", href: "/dashboard/news", icon: Newspaper },
   { label: "Weather Risk", href: "/dashboard/weather", icon: Cloud },

@@ -4,15 +4,19 @@ import type {
   AgentCitation,
   AgentOutput,
   AnalysisMode,
-  SupplierInput,
   SupplierIntelligence,
   SupplierIntelligenceBreakdown
 } from "@/types";
 import { parseCsvText } from "@/lib/csv";
+import { normalizeSupplierHealth } from "@/lib/portfolio";
 import { appendHistory } from "@/lib/server/history-store";
 import { getInitials, toRiskLevel } from "@/lib/utils";
 import { readFile } from "fs/promises";
 import path from "path";
+
+const supplierHealthSchema = z
+  .enum(["strong", "stable", "weak", "medium", "good", "poor"])
+  .optional();
 
 const supplierSchema = z.object({
   supplier_name: z.string().min(1),
@@ -23,7 +27,7 @@ const supplierSchema = z.object({
   criticality: z.enum(["low", "medium", "high", "critical"]).optional(),
   on_time_delivery_pct: z.union([z.string(), z.number()]).optional(),
   inventory_buffer_days: z.union([z.string(), z.number()]).optional(),
-  supplier_health: z.enum(["strong", "stable", "weak"]).optional(),
+  supplier_health: supplierHealthSchema,
   single_source: z.union([z.string(), z.boolean()]).optional(),
   incident_note: z.string().optional(),
   stock_ticker: z.string().optional()
@@ -35,6 +39,8 @@ const requestSchema = z.object({
   suppliers: z.array(supplierSchema).optional(),
   csv: z.string().optional()
 });
+
+type SupplierSchemaInput = z.infer<typeof supplierSchema>;
 
 type NormalizedSupplier = {
   id: string;
@@ -211,7 +217,7 @@ async function fetchJson<T>(url: string) {
   return (await response.json()) as T;
 }
 
-function normalizeSupplier(input: SupplierInput, index: number): NormalizedSupplier {
+function normalizeSupplier(input: SupplierSchemaInput, index: number): NormalizedSupplier {
   return {
     id: `live-${index + 1}`,
     name: input.supplier_name.trim(),
@@ -223,7 +229,7 @@ function normalizeSupplier(input: SupplierInput, index: number): NormalizedSuppl
     criticality: input.criticality || "medium",
     onTimeDeliveryPct: parseNumber(input.on_time_delivery_pct, 94),
     inventoryBufferDays: parseNumber(input.inventory_buffer_days, 16),
-    supplierHealth: input.supplier_health || "stable",
+    supplierHealth: normalizeSupplierHealth(input.supplier_health),
     singleSource: parseBoolean(input.single_source),
     incidentNote: input.incident_note?.trim() || "",
     stockTicker: input.stock_ticker?.trim() || ""
@@ -741,13 +747,16 @@ export async function runSupplierIntelligence(rawBody: unknown) {
     supplierName: s.supplierName,
     country: s.country,
     industry: s.industry,
+    category: normalizedSuppliers.find((n) => n.id === s.id)?.category,
     riskScore: s.riskScore,
     riskLevel: s.riskLevel,
     recommendation: s.recommendation,
     on_time_delivery_pct: normalizedSuppliers.find((n) => n.id === s.id)?.onTimeDeliveryPct,
     inventory_buffer_days: normalizedSuppliers.find((n) => n.id === s.id)?.inventoryBufferDays,
     supplier_health: normalizedSuppliers.find((n) => n.id === s.id)?.supplierHealth,
-    annual_spend_usd: normalizedSuppliers.find((n) => n.id === s.id)?.annualSpendUsd
+    annual_spend_usd: normalizedSuppliers.find((n) => n.id === s.id)?.annualSpendUsd,
+    criticality: normalizedSuppliers.find((n) => n.id === s.id)?.criticality,
+    single_source: normalizedSuppliers.find((n) => n.id === s.id)?.singleSource
   }))
 });
 

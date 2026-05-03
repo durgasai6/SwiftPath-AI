@@ -20,7 +20,7 @@ const floatingCards = [
 
 export function AuthShowcase() {
   return (
-    <div className="relative hidden overflow-hidden rounded-[32px] border border-white/10 hero-gradient p-8 lg:flex lg:min-h-[760px] lg:flex-col lg:justify-between lg:p-10">
+    <div className="relative hidden overflow-hidden rounded-[32px] border border-white/10 hero-gradient p-8 lg:flex lg:min-h-[680px] lg:flex-col lg:justify-between lg:p-10 xl:min-h-[760px]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.3),transparent_30%)]" />
       <div className="relative z-10">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">

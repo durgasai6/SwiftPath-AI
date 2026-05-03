@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { LoaderCircle, Radar, Sparkles } from "lucide-react";
+import type { AnalysisHistoryEntry, Supplier } from "@/types";
+import { sampleSuppliers } from "@/lib/sample-suppliers";
+import { toSupplierInput, toSupplierModel } from "@/lib/portfolio";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,47 +29,58 @@ export function LiveScanCard({ onScanComplete }: { onScanComplete?: () => void }
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ScanResponse | null>(null);
   const [error, setError] = useState("");
+  const [scanSuppliers, setScanSuppliers] = useState<Supplier[]>([]);
+  const [scanSource, setScanSource] = useState("Loading portfolio");
 
-const [userSuppliers, setUserSuppliers] = useState<any[]>([]);
+  useEffect(() => {
+    async function loadScanCandidates() {
+      try {
+        const [historyResponse, suppliersResponse] = await Promise.all([
+          fetch("/api/history"),
+          fetch("/api/suppliers")
+        ]);
+        const historyPayload = (await historyResponse.json()) as AnalysisHistoryEntry[] | { history?: AnalysisHistoryEntry[] };
+        const suppliersPayload = (await suppliersResponse.json()) as Array<Record<string, unknown>>;
+        const history = Array.isArray(historyPayload) ? historyPayload : historyPayload.history ?? [];
+        const latest = history[0];
 
-useEffect(() => {
-  fetch("/api/history")
-    .then((r) => r.json())
-    .then((data) => {
-      const history = Array.isArray(data) ? data : (data.history ?? []);
-      const latest = history[0];
-      if (latest?.suppliers?.length) {
-        setUserSuppliers(
-          [...latest.suppliers]
-            .sort((a: any, b: any) => b.riskScore - a.riskScore)
-            .slice(0, 5)
-        );
+        if (latest?.suppliers?.length) {
+          setScanSuppliers(
+            latest.suppliers
+              .map((supplier, index) => toSupplierModel(supplier, index))
+              .sort((left, right) => right.riskScore - left.riskScore)
+              .slice(0, 5)
+          );
+          setScanSource("Latest scan priority queue");
+          return;
+        }
+
+        if (Array.isArray(suppliersPayload) && suppliersPayload.length > 0) {
+          setScanSuppliers(
+            suppliersPayload
+              .map((supplier, index) => toSupplierModel(supplier, index))
+              .sort((left, right) => right.riskScore - left.riskScore)
+              .slice(0, 5)
+          );
+          setScanSource("Workspace supplier portfolio");
+          return;
+        }
+
+        setScanSuppliers(sampleSuppliers.slice(0, 5));
+        setScanSource("Seeded demo portfolio");
+      } catch {
+        setScanSuppliers(sampleSuppliers.slice(0, 5));
+        setScanSource("Seeded demo portfolio");
       }
-    })
-    .catch(() => {});
-}, []);
+    }
 
-const scanPayload = useMemo(() => ({
-  mode: "live" as const,
-  suppliers: userSuppliers.length > 0
-    ? userSuppliers.map((s: any) => ({
-        supplier_name: s.supplierName,
-        country: s.country ?? "",
-        industry: s.industry ?? "",
-        category: s.category ?? "",
-        annual_spend_usd: s.annual_spend_usd ?? 0,
-        criticality: s.riskScore >= 75 ? "critical" : "high",
-        on_time_delivery_pct: s.on_time_delivery_pct ?? 90,
-        inventory_buffer_days: s.inventory_buffer_days ?? 14,
-        supplier_health: s.supplier_health ?? "stable",
-        single_source: false,
-        incident_note: s.recommendation ?? ""
-      }))
-    : [
-        // Minimal placeholder so the button still works on first use
-        { supplier_name: "New Supplier", country: "Unknown", industry: "General", category: "General", annual_spend_usd: 0, criticality: "medium", on_time_delivery_pct: 90, inventory_buffer_days: 14, supplier_health: "stable", single_source: false, incident_note: "" }
-      ]
-}), [userSuppliers]);
+    void loadScanCandidates();
+  }, []);
+
+  const scanPayload = useMemo(() => ({
+    mode: "live" as const,
+    suppliers: scanSuppliers.map((supplier) => toSupplierInput(supplier))
+  }), [scanSuppliers]);
 
   async function runScan() {
     setError("");
@@ -86,7 +100,7 @@ const scanPayload = useMemo(() => ({
         throw new Error(payload.error || "SwiftPath could not run the scan.");
       }
 
-  setResult(payload);
+      setResult(payload);
       onScanComplete?.();
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "SwiftPath could not run the scan.");
@@ -103,6 +117,7 @@ const scanPayload = useMemo(() => ({
         <div className="max-w-2xl">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="default">Live backend connected</Badge>
+            <Badge variant="secondary">{scanSource}</Badge>
             {result ? (
               <Badge variant={result.modeUsed === "live" ? "success" : "warning"}>
                 {result.modeUsed === "live" ? "Groq live research" : "Local fallback"}
@@ -111,7 +126,7 @@ const scanPayload = useMemo(() => ({
           </div>
           <h3 className="mt-3 text-xl font-semibold tracking-tight text-foreground">Run a real AI scan on the highest-risk suppliers</h3>
           <p className="mt-2 text-sm leading-7 text-muted">
-            This action calls the live `/api/analyze` pipeline, runs the multi-agent backend, and returns a fresh risk summary for the top suppliers in the portfolio.
+            This action calls the live `/api/analyze` pipeline, runs the multi-agent backend, and returns a fresh risk summary for the highest-priority suppliers in the current portfolio.
           </p>
 
           {topSupplier ? (
@@ -131,15 +146,15 @@ const scanPayload = useMemo(() => ({
         </div>
 
         <div className="flex shrink-0 flex-col gap-3 xl:items-end">
-          <Button onClick={runScan} disabled={isLoading} className="min-w-[220px]">
+          <Button onClick={runScan} disabled={isLoading} className="w-full sm:min-w-[220px] xl:w-auto">
             {isLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Radar className="h-4 w-4" />}
             {isLoading ? "Running scan..." : "Run Live AI Scan"}
           </Button>
 
-          <div className="grid gap-2 text-right text-sm text-muted">
+          <div className="grid gap-2 text-left text-sm text-muted xl:text-right">
             <div className="flex items-center justify-between gap-6 xl:justify-end">
               <span>Suppliers in scan</span>
-              <span className="font-mono text-foreground">{scanPayload.suppliers.length}</span>
+              <span className="font-mono text-foreground">{scanPayload.suppliers.length || 0}</span>
             </div>
             {result ? (
               <>

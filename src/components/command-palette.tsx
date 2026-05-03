@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { BarChart3, Bell, Bot, FileText, Home, Search, Truck } from "lucide-react";
+import { BarChart3, Bell, Bot, FileText, Home, Search, Truck, Workflow } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Command,
@@ -21,14 +21,15 @@ const commandItems = [
       { label: "Suppliers", href: "/dashboard/suppliers", icon: Truck, shortcut: "G S" },
       { label: "Alerts", href: "/dashboard/alerts", icon: Bell, shortcut: "G A" },
       { label: "Agent activity", href: "/dashboard/agents", icon: Bot, shortcut: "G G" },
+      { label: "Agentic ops", href: "/dashboard/ops", icon: Workflow, shortcut: "G O" },
       { label: "Reports", href: "/dashboard/reports", icon: FileText, shortcut: "G R" }
     ]
   },
   {
     heading: "Quick actions",
     items: [
-      { label: "Generate a new executive report", href: "/dashboard/reports", icon: BarChart3, shortcut: "⌘ R" },
-      { label: "Investigate current high-risk suppliers", href: "/dashboard/suppliers", icon: Search, shortcut: "⌘ I" }
+      { label: "Generate a new executive report", href: "/dashboard/reports", icon: BarChart3, shortcut: "Ctrl R" },
+      { label: "Investigate current high-risk suppliers", href: "/dashboard/suppliers", icon: Search, shortcut: "Ctrl I" }
     ]
   }
 ];
@@ -80,4 +81,3 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     </Dialog>
   );
 }
-

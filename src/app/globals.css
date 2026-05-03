@@ -53,10 +53,13 @@
 
 html {
   scroll-behavior: smooth;
+  max-width: 100%;
 }
 
 body {
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top left, rgba(59, 130, 246, 0.2), transparent 30%),
     radial-gradient(circle at top right, rgba(15, 23, 42, 0.15), transparent 22%),
@@ -84,6 +87,12 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+img,
+svg,
+canvas {
+  max-width: 100%;
 }
 
 ::selection {
@@ -236,4 +245,18 @@ select {
 
 .animate-fade-slide {
   animation: fade-slide-up 0.4s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
