@@ -9,6 +9,15 @@ import { Input } from "@/components/ui/input";
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop";
 
+const FALLBACK_IMAGES = [
+  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1485217988980-11786ced9454?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1200&auto=format&fit=crop"
+];
+
 const CATEGORIES = [
   "supply chain",
   "logistics",
@@ -17,6 +26,14 @@ const CATEGORIES = [
   "trade sanctions",
   "war"
 ];
+
+function getArticleImage(article: any, index: number) {
+  if (!article?.image || article.image === FALLBACK_IMAGE) {
+    return FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+  }
+
+  return article.image;
+}
 
 export default function NewsPage() {
   const [articles, setArticles] = useState<any[]>([]);
@@ -87,12 +104,12 @@ export default function NewsPage() {
           {articles.map((a, i) => (
             <Card key={i} className="flex h-full flex-col overflow-hidden border-white/10 bg-white/5">
               <img
-                src={a.image}
+                src={getArticleImage(a, i)}
                 alt={a.title}
                 className="w-full h-48 object-cover"
                 loading="lazy"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+                  (e.target as HTMLImageElement).src = FALLBACK_IMAGES[i % FALLBACK_IMAGES.length];
                 }}
               />
 

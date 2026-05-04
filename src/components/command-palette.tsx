@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { BarChart3, Bell, Bot, FileText, Home, Search, Truck, Workflow } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Command,
   CommandEmpty,
@@ -45,6 +45,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="overflow-hidden p-0">
+        <DialogTitle className="sr-only">Command Palette</DialogTitle>
         <Command>
           <CommandInput placeholder="Search pages, actions, and workflows..." />
           <CommandList className="scrollbar-thin">

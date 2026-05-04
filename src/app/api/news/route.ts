@@ -2,9 +2,22 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-// 🔥 fallback image (stable)
+// 🔥 stable generic fallback image
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop";
+
+const FALLBACK_IMAGES = [
+  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1485217988980-11786ced9454?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1200&auto=format&fit=crop"
+];
+
+function getFallbackImage(index: number) {
+  return FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+}
 
 // 🔥 dynamic image based on query
 function getImage(query: string) {
@@ -36,12 +49,12 @@ async function fetchGdelt(query: string) {
 
     const data = await res.json();
 
-    return (data.articles ?? []).map((a: any) => ({
+    return (data.articles ?? []).map((a: any, index: number) => ({
       title: a.title,
       url: a.url,
       source: a.domain ?? "GDELT",
       date: a.seendate,
-      image: a.socialimage || a.image || getImage(query),
+      image: a.socialimage || a.image || getFallbackImage(index),
     }));
   } catch {
     return [];
@@ -60,7 +73,7 @@ async function fetchGoogleNews(query: string) {
 
     const items = xml.split("<item>").slice(1);
 
-    return items.slice(0, 10).map((item) => {
+    return items.slice(0, 10).map((item, index) => {
       const title = item.match(/<title>(.*?)<\/title>/)?.[1] || "";
       const link = item.match(/<link>(.*?)<\/link>/)?.[1] || "";
 
@@ -68,7 +81,7 @@ async function fetchGoogleNews(query: string) {
         title,
         url: link,
         source: "Google News",
-        image: getImage(query),
+        image: getFallbackImage(index),
       };
     });
   } catch {

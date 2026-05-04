@@ -65,6 +65,10 @@ export default function WeatherPage() {
             <div key={index} className="h-48 animate-pulse rounded-3xl border border-white/10 bg-white/5" />
           ))}
         </div>
+      ) : data.length === 0 ? (
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center text-sm text-muted">
+          No weather data is available right now. Please refresh or try again later.
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {data.map((country) => (

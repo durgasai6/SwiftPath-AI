@@ -112,20 +112,20 @@ export default function AgentsPage() {
           </CardHeader>
           <CardContent>
             <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-background/30 p-6">
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
                 {pipelineNodes.map((node, index) => {
                   const Icon = node.icon;
                   return (
-                    <div key={node.title} className="relative">
+                    <div key={node.title} className="relative min-w-0">
                       <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-center">
                         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/12 text-primary">
                           <Icon className="h-5 w-5" />
                         </div>
-                        <p className="mt-4 font-semibold text-foreground">{node.title}</p>
-                        <p className="mt-2 text-sm leading-6 text-muted">{node.subtitle}</p>
+                        <p className="mt-4 font-semibold text-foreground break-words">{node.title}</p>
+                        <p className="mt-2 text-sm leading-6 text-muted break-words whitespace-normal">{node.subtitle}</p>
                       </div>
                       {index < pipelineNodes.length - 1 && (
-                        <div className="hidden xl:block">
+                        <div className="hidden 2xl:block">
                           <div className="absolute left-full top-1/2 flex w-10 -translate-y-1/2 items-center justify-center">
                             <div className="absolute inset-x-0 h-px bg-linear-to-r from-primary/60 to-primary/5" />
                             <div className="absolute left-2 h-2 w-2 rounded-full bg-primary/70" />

@@ -1,5 +1,95 @@
 [
   {
+    "id": "run-1777867852968",
+    "timestamp": "2026-05-04T04:10:52.968Z",
+    "generatedAt": "2026-05-04T04:10:52.962Z",
+    "modeUsed": "live",
+    "summary": {
+      "supplierCount": 5,
+      "averageRiskScore": 46,
+      "criticalSuppliers": 0,
+      "highRiskSuppliers": 2,
+      "citationsCollected": 10
+    },
+    "suppliers": [
+      {
+        "supplierName": "Precision Electronics Ltd",
+        "country": "Taiwan",
+        "industry": "Electronics Manufacturing",
+        "category": "Semiconductors",
+        "riskScore": 58,
+        "riskLevel": "high",
+        "recommendation": "Begin alternate-source qualification and tighten weekly supplier reviews until risk conditions improve.",
+        "on_time_delivery_pct": 87,
+        "inventory_buffer_days": 8,
+        "supplier_health": "weak",
+        "annual_spend_usd": 12500000,
+        "criticality": "critical",
+        "single_source": true
+      },
+      {
+        "supplierName": "Shanghai Industrial Co.",
+        "country": "China",
+        "industry": "Manufacturing",
+        "category": "Components",
+        "riskScore": 56,
+        "riskLevel": "high",
+        "recommendation": "Increase monitoring cadence and build contingency inventory around the most exposed SKUs.",
+        "on_time_delivery_pct": 79,
+        "inventory_buffer_days": 12,
+        "supplier_health": "stable",
+        "annual_spend_usd": 8700000,
+        "criticality": "critical",
+        "single_source": false
+      },
+      {
+        "supplierName": "Indonesia Trade & Logistics",
+        "country": "Indonesia",
+        "industry": "Logistics",
+        "category": "Port & Shipping",
+        "riskScore": 41,
+        "riskLevel": "medium",
+        "recommendation": "Begin alternate-source qualification and tighten weekly supplier reviews until risk conditions improve.",
+        "on_time_delivery_pct": 76,
+        "inventory_buffer_days": 9,
+        "supplier_health": "weak",
+        "annual_spend_usd": 2400000,
+        "criticality": "high",
+        "single_source": true
+      },
+      {
+        "supplierName": "Bangalore Tech Manufacturing",
+        "country": "India",
+        "industry": "Electronics",
+        "category": "Assembly & Testing",
+        "riskScore": 41,
+        "riskLevel": "medium",
+        "recommendation": "Begin alternate-source qualification and tighten weekly supplier reviews until risk conditions improve.",
+        "on_time_delivery_pct": 85,
+        "inventory_buffer_days": 10,
+        "supplier_health": "stable",
+        "annual_spend_usd": 5800000,
+        "criticality": "high",
+        "single_source": true
+      },
+      {
+        "supplierName": "Global Supply Partners Inc.",
+        "country": "Mexico",
+        "industry": "Logistics & Distribution",
+        "category": "Distribution",
+        "riskScore": 36,
+        "riskLevel": "medium",
+        "recommendation": "Increase monitoring cadence and build contingency inventory around the most exposed SKUs.",
+        "on_time_delivery_pct": 92,
+        "inventory_buffer_days": 14,
+        "supplier_health": "strong",
+        "annual_spend_usd": 6200000,
+        "criticality": "high",
+        "single_source": false
+      }
+    ]
+  },
+  {
     "id": "run-20260502-001",
     "timestamp": "2026-05-02T10:15:00.000Z",
     "generatedAt": "2026-05-02T10:15:00.000Z",
